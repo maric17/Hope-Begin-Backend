@@ -1,0 +1,5 @@
+-r base.txt
+# Add dev-only packages here
+pytest-django
+flake8
+black
