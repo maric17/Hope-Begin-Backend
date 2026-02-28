@@ -8,4 +8,5 @@ urlpatterns = [
     path('api/hopecasts/', include('apps.hopecasts.urls')),
     path('api/donations/', include('apps.donations.urls')),
     path('api/hope-ai/', include('apps.hope_ai.urls')),
+    path('api/daily-hope/', include('apps.daily_hope.urls')),
 ]
