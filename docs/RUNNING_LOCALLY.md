@@ -84,6 +84,7 @@ Triggers scheduled tasks (e.g., sending emails every morning at 8:00 AM).
 
 ### `ModuleNotFoundError: No module named 'celery'`
 This happens if you run `python manage.py` using your global Python instead of the virtual environment. Always use `.\venv\Scripts\python.exe` or ensure your venv is activated.
+.\venv\Scripts\python.exe manage.py runserver 3003
 
 ### Redis Connection Error
 Ensure Redis is running. You can test it with:
