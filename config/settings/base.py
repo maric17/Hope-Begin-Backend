@@ -17,6 +17,8 @@ env = environ.Env(
     AWS_SECRET_ACCESS_KEY=(str, ''),
     AWS_STORAGE_BUCKET_NAME=(str, ''),
     AWS_S3_REGION_NAME=(str, 'us-east-1'),
+    CELERY_BROKER_URL=(str, 'redis://localhost:6379/0'),
+    CELERY_RESULT_BACKEND=(str, 'redis://localhost:6379/0'),
 )
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -189,3 +191,20 @@ AWS_DEFAULT_ACL = None
 if AWS_STORAGE_BUCKET_NAME:
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
     STATICFILES_STORAGE = 'storages.backends.s3boto3.S3StaticStorage'
+
+# Celery Configuration
+CELERY_BROKER_URL = env('CELERY_BROKER_URL')
+CELERY_RESULT_BACKEND = env('CELERY_RESULT_BACKEND')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    'send-daily-hope-emails-8am': {
+        'task': 'apps.daily_hope.tasks.send_daily_hope_emails',
+        'schedule': crontab(hour=8, minute=0),
+    },
+}

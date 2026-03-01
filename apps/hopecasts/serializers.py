@@ -8,10 +8,11 @@ class HopecastCategorySerializer(serializers.ModelSerializer):
 
 class HopecastSerializer(serializers.ModelSerializer):
     category_details = HopecastCategorySerializer(source='categories', many=True, read_only=True)
+    play_times = serializers.IntegerField(source='play_count', read_only=True)
     
     class Meta:
         model = Hopecast
-        fields = ('id', 'title', 'mp4_link', 'categories', 'category_details', 'created_at', 'updated_at')
+        fields = ('id', 'title', 'mp4_link', 'categories', 'category_details', 'play_times', 'created_at', 'updated_at')
         extra_kwargs = {
             'categories': {'write_only': True}
         }

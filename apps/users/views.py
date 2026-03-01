@@ -3,12 +3,17 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.core.mail import send_mail
+from django.db.models import Sum
 from rest_framework import status, permissions, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.decorators import action
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
+
+from apps.prayers.models import Prayer
+from apps.hopecasts.models import Hopecast
+from apps.prayers.serializers import PrayerSerializer
 from .serializers import (
     AdminRegistrationSerializer, 
     MyTokenObtainPairSerializer, 
@@ -93,9 +98,39 @@ class UserViewSet(viewsets.ModelViewSet):
             return [permissions.IsAdminUser()]
         if self.action in ['retrieve', 'partial_update', 'update']:
             return [IsOwnerOrAdmin()]
-        if self.action in ['me', 'my_profile']:
+        if self.action in ['me', 'my_profile', 'overview']:
             return [permissions.IsAuthenticated()]
         return super().get_permissions()
+
+    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAdminUser])
+    def overview(self, request):
+        # 1. Total Prayers
+        total_prayers = Prayer.objects.count()
+        
+        # 2. Pending (New) Prayers
+        pending_prayers = Prayer.objects.filter(status='NEW').count()
+        
+        # 3. Approved Hope Carriers
+        total_carriers = User.objects.filter(role='carrier', is_approved=True).count()
+        
+        # 4. Total HopeCast Plays
+        total_hopecast_plays = Hopecast.objects.aggregate(total=Sum('play_count'))['total'] or 0
+        
+        # 5. Recent Prayer Requests (Top 5)
+        recent_prayers = Prayer.objects.all().order_by('-created_at')[:5]
+        recent_prayers_data = PrayerSerializer(recent_prayers, many=True).data
+
+        data = {
+            "total_prayers": total_prayers,
+            "pending_prayers": pending_prayers,
+            "total_carriers": total_carriers,
+            "hopecast_plays": total_hopecast_plays,
+            "recent_prayers": recent_prayers_data
+        }
+        
+        response = Response(data)
+        response.message = "Dashboard overview data retrieved successfully."
+        return response
 
     @action(detail=False, methods=['get', 'patch'], url_path='me')
     def me(self, request):
