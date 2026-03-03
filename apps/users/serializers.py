@@ -33,24 +33,36 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         return data
 
 class UserSerializer(serializers.ModelSerializer):
+    prayer_count = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = (
             'id', 'username', 'email', 'role', 'is_approved', 
             'first_name', 'last_name', 'phone', 'church_community', 
-            'carrier_reason', 'agreed_to_guidelines'
+            'carrier_reason', 'agreed_to_guidelines', 'date_joined',
+            'prayer_count'
         )
-        read_only_fields = ('id', 'role', 'is_approved')
+        read_only_fields = ('id', 'role', 'is_approved', 'date_joined', 'prayer_count')
+
+    def get_prayer_count(self, obj):
+        return obj.assigned_prayers.count()
 
 class AdminUserSerializer(serializers.ModelSerializer):
+    prayer_count = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = (
             'id', 'username', 'email', 'role', 'is_approved', 
             'first_name', 'last_name', 'phone', 'church_community', 
-            'carrier_reason', 'agreed_to_guidelines'
+            'carrier_reason', 'agreed_to_guidelines', 'date_joined',
+            'prayer_count'
         )
-        read_only_fields = ('id',)
+        read_only_fields = ('id', 'date_joined', 'prayer_count')
+
+    def get_prayer_count(self, obj):
+        return obj.assigned_prayers.count()
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
