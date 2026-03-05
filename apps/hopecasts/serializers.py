@@ -12,7 +12,7 @@ class HopecastSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Hopecast
-        fields = ('id', 'title', 'mp4_link', 'categories', 'category_details', 'play_times', 'created_at', 'updated_at')
+        fields = ('id', 'title', 'name', 'verse', 'mp4_link', 'categories', 'category_details', 'play_times', 'created_at', 'updated_at')
         extra_kwargs = {
             'categories': {'write_only': True}
         }
