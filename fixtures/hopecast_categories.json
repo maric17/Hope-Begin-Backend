@@ -1,0 +1,82 @@
+[
+    {
+        "model": "hopecasts.hopecastcategory",
+        "pk": "11111111-0000-0000-0000-000000000001",
+        "fields": {
+            "name": "Devotional",
+            "slug": "devotional"
+        }
+    },
+    {
+        "model": "hopecasts.hopecastcategory",
+        "pk": "11111111-0000-0000-0000-000000000002",
+        "fields": {
+            "name": "Worship",
+            "slug": "worship"
+        }
+    },
+    {
+        "model": "hopecasts.hopecastcategory",
+        "pk": "11111111-0000-0000-0000-000000000003",
+        "fields": {
+            "name": "Faith & Trust",
+            "slug": "faith-trust"
+        }
+    },
+    {
+        "model": "hopecasts.hopecastcategory",
+        "pk": "11111111-0000-0000-0000-000000000004",
+        "fields": {
+            "name": "Healing",
+            "slug": "healing"
+        }
+    },
+    {
+        "model": "hopecasts.hopecastcategory",
+        "pk": "11111111-0000-0000-0000-000000000005",
+        "fields": {
+            "name": "Family",
+            "slug": "family"
+        }
+    },
+    {
+        "model": "hopecasts.hopecastcategory",
+        "pk": "11111111-0000-0000-0000-000000000006",
+        "fields": {
+            "name": "Community",
+            "slug": "community"
+        }
+    },
+    {
+        "model": "hopecasts.hopecastcategory",
+        "pk": "11111111-0000-0000-0000-000000000007",
+        "fields": {
+            "name": "Hope",
+            "slug": "hope"
+        }
+    },
+    {
+        "model": "hopecasts.hopecastcategory",
+        "pk": "11111111-0000-0000-0000-000000000008",
+        "fields": {
+            "name": "Grief & Loss",
+            "slug": "grief-loss"
+        }
+    },
+    {
+        "model": "hopecasts.hopecastcategory",
+        "pk": "11111111-0000-0000-0000-000000000009",
+        "fields": {
+            "name": "Prayer",
+            "slug": "prayer"
+        }
+    },
+    {
+        "model": "hopecasts.hopecastcategory",
+        "pk": "11111111-0000-0000-0000-000000000010",
+        "fields": {
+            "name": "General",
+            "slug": "general"
+        }
+    }
+]

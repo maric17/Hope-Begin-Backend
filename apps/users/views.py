@@ -120,11 +120,15 @@ class UserViewSet(viewsets.ModelViewSet):
         recent_prayers = Prayer.objects.all().order_by('-created_at')[:5]
         recent_prayers_data = PrayerSerializer(recent_prayers, many=True).data
 
+        # 6. Total registered users
+        total_users = User.objects.count()
+
         data = {
             "total_prayers": total_prayers,
             "pending_prayers": pending_prayers,
             "total_carriers": total_carriers,
             "hopecast_plays": total_hopecast_plays,
+            "total_users": total_users,
             "recent_prayers": recent_prayers_data
         }
         
