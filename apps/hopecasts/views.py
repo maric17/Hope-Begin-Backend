@@ -3,7 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Hopecast, HopecastCategory
+from .models import Hopecast, HopecastCategory, HopecastPlayLog
 from .serializers import HopecastSerializer, HopecastCategorySerializer
 
 class HopecastPagination(PageNumberPagination):
@@ -42,6 +42,7 @@ class HopecastViewSet(viewsets.ModelViewSet):
         hopecast = self.get_object()
         hopecast.play_count += 1
         hopecast.save()
+        HopecastPlayLog.objects.create(hopecast=hopecast)
         
         response = Response(self.get_serializer(hopecast).data)
         response.message = f"Play count incremented for: {hopecast.title}"
