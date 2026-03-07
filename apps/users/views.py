@@ -3,8 +3,11 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.core.mail import send_mail
-from django.db.models import Sum
-from rest_framework import status, permissions, viewsets
+from django.conf import settings
+from django.db.models import Sum, Count
+from django.utils.crypto import get_random_string
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import status, permissions, viewsets, pagination, filters
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.decorators import action
@@ -68,7 +71,7 @@ class CarrierApplicationView(APIView):
         if serializer.is_valid():
             user = serializer.save()
             response = Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
-            response.message = "Carrier application submitted. Pending admin approval."
+            response.message = "Your application is being reviewed. If approved, we will send a temporary password to your email."
             return response
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -84,9 +87,20 @@ class AdminRegistrationView(APIView):
             return response
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class UserPagination(pagination.PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
+    queryset = User.objects.all().annotate(prayer_count=Count('assigned_prayers'))
+    serializer_class = UserSerializer
+    pagination_class = UserPagination
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['first_name', 'last_name', 'email']
     filterset_fields = ['role', 'is_approved']
+    ordering_fields = ['first_name', 'last_name', 'email', 'date_joined', 'prayer_count']
+    ordering = ['-date_joined']
     
     def get_serializer_class(self):
         if self.request.user.role == 'admin':
@@ -153,29 +167,40 @@ class UserViewSet(viewsets.ModelViewSet):
     def approve(self, request, pk=None):
         user = self.get_object()
         user.is_approved = True
-        user.save()
-
-        # If it's a carrier, send the "Set Password" email
+        
+        # If it's a carrier, generate a temporary password and send email
         if user.role == 'carrier':
-            token = default_token_generator.make_token(user)
-            uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+            temp_password = get_random_string(12)
+            user.set_password(temp_password)
+            user.save()
             
-            # The URL to set password (frontend URL)
-            set_password_url = f"http://localhost:3000/reset-password?uid={uidb64}&token={token}"
+            login_url = f"{settings.FRONTEND_URL}/login/carrier"
+            
+            subject = "Welcome to Hope Begins - Your Application is Approved!"
+            message = (
+                f"Your application as a Hope Carrier has been approved!\n\n"
+                f"You can now access your dashboard using the following credentials:\n"
+                f"Username: {user.email}\n"
+                f"Temporary Password: {temp_password}\n\n"
+                f"Login here: {login_url}\n\n"
+                "Please change your password after your first login for security purposes.\n\n"
+                "Thank you for standing in the gap with us."
+            )
             
             send_mail(
-                "Welcome to Hope Begins - Set Your Password",
-                f"Your application as a Hope Carrier has been approved! Use this link to set your password and access your dashboard: {set_password_url}",
-                "noreply@hopebegins.org",
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
                 [user.email],
                 fail_silently=False,
             )
-            message = "Carrier approved and invitation email sent."
+            message_response = "Carrier approved and credentials email sent."
         else:
-            message = "User approved successfully."
+            user.save()
+            message_response = "User approved successfully."
 
         response = Response(UserSerializer(user).data)
-        response.message = message
+        response.message = message_response
         return response
 
 class ForgotPasswordView(APIView):
@@ -190,7 +215,7 @@ class ForgotPasswordView(APIView):
             uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
             
             # Reset URL (frontend URL)
-            reset_url = f"http://localhost:3000/reset-password?uid={uidb64}&token={token}"
+            reset_url = f"{settings.FRONTEND_URL}/reset-password?uid={uidb64}&token={token}"
             
             send_mail(
                 "Password Reset Request",
