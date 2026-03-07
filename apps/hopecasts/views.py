@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
@@ -24,8 +24,11 @@ class HopecastViewSet(viewsets.ModelViewSet):
     queryset = Hopecast.objects.all()
     serializer_class = HopecastSerializer
     pagination_class = HopecastPagination
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter)
     filterset_fields = ('categories',)
+    search_fields = ('title', 'name', 'verse')
+    ordering_fields = ('created_at', 'play_count', 'title')
+    ordering = ('-created_at',)
 
     def get_permissions(self):
         # Only admin can add, edit, or delete hopecasts
