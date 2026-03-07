@@ -8,10 +8,18 @@ from .models import Prayer, PrayerResponse
 from .serializers import PrayerSerializer, AdminPrayerSerializer, PrayerResponseSerializer
 from apps.users.permissions import IsApproved
 
+from rest_framework.pagination import PageNumberPagination
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
 class PrayerViewSet(viewsets.ModelViewSet):
+    pagination_class = StandardResultsSetPagination
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['status', 'category']
-    search_fields = ['title', 'content']
+    search_fields = ['title', 'content', 'email']
     ordering_fields = ['created_at', 'updated_at']
     ordering = ['-created_at']
 
