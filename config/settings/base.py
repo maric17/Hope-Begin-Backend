@@ -19,6 +19,7 @@ env = environ.Env(
     AWS_S3_REGION_NAME=(str, 'us-east-1'),
     CELERY_BROKER_URL=(str, 'redis://localhost:6379/0'),
     CELERY_RESULT_BACKEND=(str, 'redis://localhost:6379/0'),
+    FRONTEND_URL=(str, 'http://localhost:3000'),
 )
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -30,6 +31,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env('DEBUG')
+FRONTEND_URL = env('FRONTEND_URL')
 
 ALLOWED_HOSTS = []
 

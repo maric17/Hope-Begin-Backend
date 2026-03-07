@@ -16,7 +16,7 @@ class Prayer(models.Model):
     STATUS_CHOICES = [
         ('NEW', 'New'),
         ('ASSIGNED', 'Assigned'),
-        ('PRAYED', 'Prayed'),
+        ('ON_PROGRESS', 'On Progress'),
         ('COMPLETED', 'Completed'),
     ]
 
