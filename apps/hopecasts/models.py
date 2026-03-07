@@ -29,3 +29,12 @@ class Hopecast(models.Model):
 
     def __str__(self):
         return self.title
+class HopecastPlayLog(models.Model):
+    hopecast = models.ForeignKey(Hopecast, on_delete=models.CASCADE, related_name='play_logs')
+    played_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-played_at']
+
+    def __str__(self):
+        return f"Play log for {self.hopecast.title} at {self.played_at}"

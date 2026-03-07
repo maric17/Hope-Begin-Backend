@@ -13,9 +13,12 @@ from rest_framework.views import APIView
 from rest_framework.decorators import action
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.utils import timezone
+from datetime import timedelta
+from django.db.models.functions import TruncDate
 
 from apps.prayers.models import Prayer
-from apps.hopecasts.models import Hopecast
+from apps.hopecasts.models import Hopecast, HopecastPlayLog
 from apps.prayers.serializers import PrayerSerializer
 from .serializers import (
     AdminRegistrationSerializer, 
@@ -137,13 +140,49 @@ class UserViewSet(viewsets.ModelViewSet):
         # 6. Total registered users
         total_users = User.objects.count()
 
+        # 7. Weekly Trends (Last 7 days)
+        end_date = timezone.now().date()
+        start_date = end_date - timedelta(days=6)
+
+        # Prayer Trend
+        prayers_by_date = Prayer.objects.filter(
+            created_at__date__gte=start_date,
+            created_at__date__lte=end_date
+        ).annotate(
+            date=TruncDate('created_at')
+        ).values('date').annotate(count=Count('id')).order_by('date')
+        
+        prayer_trend = []
+        for i in range(7):
+            current_date = start_date + timedelta(days=i)
+            day_name = current_date.strftime('%a')
+            count = next((item['count'] for item in prayers_by_date if item['date'] == current_date), 0)
+            prayer_trend.append({"day": day_name, "count": count})
+
+        # Hopecast Play Trend
+        plays_by_date = HopecastPlayLog.objects.filter(
+            played_at__date__gte=start_date,
+            played_at__date__lte=end_date
+        ).annotate(
+            date=TruncDate('played_at')
+        ).values('date').annotate(count=Count('id')).order_by('date')
+        
+        hopecast_trend = []
+        for i in range(7):
+            current_date = start_date + timedelta(days=i)
+            day_name = current_date.strftime('%a')
+            count = next((item['count'] for item in plays_by_date if item['date'] == current_date), 0)
+            hopecast_trend.append({"day": day_name, "count": count})
+
         data = {
             "total_prayers": total_prayers,
             "pending_prayers": pending_prayers,
             "total_carriers": total_carriers,
             "hopecast_plays": total_hopecast_plays,
             "total_users": total_users,
-            "recent_prayers": recent_prayers_data
+            "recent_prayers": recent_prayers_data,
+            "prayer_trend": prayer_trend,
+            "hopecast_trend": hopecast_trend,
         }
         
         response = Response(data)
