@@ -13,6 +13,7 @@ env = environ.Env(
     DB_HOST=(str, ''),
     DB_PORT=(str, '6543'),
     CORS_ALLOWED_ORIGINS=(list, ['http://localhost:3000']),
+    ALLOWED_HOSTS=(list, ['localhost', '127.0.0.1']),
     AWS_ACCESS_KEY_ID=(str, ''),
     AWS_SECRET_ACCESS_KEY=(str, ''),
     AWS_STORAGE_BUCKET_NAME=(str, ''),

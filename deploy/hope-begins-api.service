@@ -1,0 +1,20 @@
+[Unit]
+Description=Hope Begins Gunicorn Service
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/hopebeginbackend
+Environment="DJANGO_SETTINGS_MODULE=config.settings.prod"
+# Load environment variables from .env.production
+# Note: systemd EnvironmentFile= expects lines in KEY=VALUE format without quotes usually
+# but many .env files work fine. 
+EnvironmentFile=/var/www/hopebeginbackend/.env.production
+ExecStart=/var/www/hopebeginbackend/venv/bin/gunicorn \
+          --workers 3 \
+          --bind unix:/var/www/hopebeginbackend/app.sock \
+          config.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
