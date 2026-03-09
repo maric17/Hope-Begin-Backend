@@ -5,9 +5,11 @@ ENV PYTHONUNBUFFERED 1
 
 WORKDIR /app
 
-# Copy and install prod dependencies
-COPY requirements/prod.txt ./requirements.txt
-RUN pip install --upgrade pip && pip install -r requirements.txt
+# Copy the entire requirements folder
+COPY requirements/ ./requirements/
+
+# Install prod dependencies
+RUN pip install --upgrade pip && pip install -r requirements/prod.txt
 
 # Copy project files
 COPY . .
