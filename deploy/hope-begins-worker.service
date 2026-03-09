@@ -1,0 +1,14 @@
+[Unit]
+Description=Hope Begins Celery Worker
+After=network.target redis.service
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/hopebeginbackend
+Environment="DJANGO_SETTINGS_MODULE=config.settings.prod"
+EnvironmentFile=/var/www/hopebeginbackend/.env.production
+ExecStart=/var/www/hopebeginbackend/venv/bin/celery -A config worker --loglevel=info
+
+[Install]
+WantedBy=multi-user.target
