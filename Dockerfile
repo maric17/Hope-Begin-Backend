@@ -1,10 +1,20 @@
 FROM python:3.12-slim
+
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
+
 WORKDIR /app
-COPY requirements.txt .
+
+# Copy and install prod dependencies
+COPY requirements/prod.txt ./requirements.txt
 RUN pip install --upgrade pip && pip install -r requirements.txt
+
+# Copy project files
 COPY . .
+
+# Collect static files if using Django static
 RUN python manage.py collectstatic --noinput
+
 EXPOSE 8000
-CMD ["gunicorn", "your_project_name.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "2"]
+
+CMD ["gunicorn", "hope_begins_api.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "2"]
