@@ -31,6 +31,9 @@ Learn how to:
 2. Configure Nginx and Gunicorn.
 3. Manage production environment variables.
 
+### [Redis Troubleshooting](./docs/REDIS_TROUBLESHOOTING.md)
+Learn how to check if Redis is working correctly on your server.
+
 ---
 
 ## 📁 Project Structure
