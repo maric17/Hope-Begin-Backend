@@ -259,7 +259,7 @@ class ForgotPasswordView(APIView):
             send_mail(
                 "Password Reset Request",
                 f"Use this link to reset your password: {reset_url}",
-                "noreply@hopebegins.org",
+                settings.DEFAULT_FROM_EMAIL,
                 [email],
                 fail_silently=False,
             )
