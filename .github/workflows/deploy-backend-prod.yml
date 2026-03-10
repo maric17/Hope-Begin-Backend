@@ -10,15 +10,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - name: SSH Deploy
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
+          password: ${{ secrets.SERVER_PASSWORD }}
           script: |
             cd /var/www/Hope-Begin-Backend
             echo "${{ secrets.BACKEND_ENV }}" > .env
             git reset --hard
             git pull
-            docker compose up -d --build backend
+            docker compose up -d --build backend celery
