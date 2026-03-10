@@ -3,6 +3,9 @@ from django.core.mail import EmailMultiAlternatives
 from django.utils import timezone
 from .models import HopeJourney
 from .content import GET_HOPE_DROPS_CONTENT
+import logging
+
+logger = logging.getLogger(__name__)
 
 def send_subscriber_email_logic(subscriber):
     """
@@ -10,6 +13,7 @@ def send_subscriber_email_logic(subscriber):
     and increment their progress.
     """
     day = subscriber.current_day
+    logger.info(f"Processing Daily Hope email for {subscriber.email} (Day {day})")
     content = GET_HOPE_DROPS_CONTENT.get(day)
     
     if not content:
@@ -60,10 +64,13 @@ def send_subscriber_email_logic(subscriber):
     msg.attach_alternative(html_content, "text/html")
     
     try:
+        logger.info(f"Attempting to send Daily Hope email (Day {day}) to {subscriber.email}")
         msg.send()
+        logger.info(f"Successfully sent Daily Hope email (Day {day}) to {subscriber.email}")
         
         # Increment day or finish AFTER successful send
         if day >= 21:
+            logger.info(f"Subscriber {subscriber.email} completed the 21-day journey")
             subscriber.is_active = False
             subscriber.finished_at = timezone.now()
         else:
@@ -74,14 +81,16 @@ def send_subscriber_email_logic(subscriber):
         
     except Exception as e:
         # Log error
-        print(f"Error sending email to {subscriber.email}: {e}")
+        logger.error(f"Error sending Daily Hope email to {subscriber.email}: {e}", exc_info=True)
         return False
 
 @shared_task
 def send_daily_hope_emails():
+    logger.info("Task send_daily_hope_emails triggered")
     # Find all active subscribers
     active_subscribers = HopeJourney.objects.filter(is_active=True)
     
+    logger.info(f"Found {active_subscribers.count()} active subscribers for Daily Hope emails")
     for subscriber in active_subscribers:
         send_subscriber_email_logic(subscriber)
 
@@ -91,9 +100,12 @@ def send_welcome_and_day_one(subscriber_id):
     Called immediately upon signup.
     Sends Day 1 email and sets subscriber ready for Day 2 on next schedule.
     """
+    logger.info(f"Task send_welcome_and_day_one triggered for subscriber_id={subscriber_id}")
     try:
         subscriber = HopeJourney.objects.get(id=subscriber_id)
         if subscriber.current_day == 1:
             send_subscriber_email_logic(subscriber)
+            logger.info(f"Processed Day 1 email for subscriber_id={subscriber_id}")
     except HopeJourney.DoesNotExist:
+        logger.warning(f"Subscriber with id={subscriber_id} does not exist. Cannot send Day 1 email.")
         pass
