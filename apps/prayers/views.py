@@ -7,6 +7,7 @@ from django.conf import settings
 from .models import Prayer, PrayerResponse
 from .serializers import PrayerSerializer, AdminPrayerSerializer, PrayerResponseSerializer
 from apps.users.permissions import IsApproved
+from apps.users.tasks import send_prayer_encouragement_email
 
 from rest_framework.pagination import PageNumberPagination
 
@@ -107,17 +108,8 @@ class PrayerViewSet(viewsets.ModelViewSet):
                 "The Hope Begins Team"
             )
             
-            try:
-                send_mail(
-                    subject,
-                    message,
-                    settings.DEFAULT_FROM_EMAIL,
-                    [prayer.email],
-                    fail_silently=False,
-                )
-            except Exception:
-                # Optionally handle email failure
-                pass
+            # Send email asynchronously using Celery
+            send_prayer_encouragement_email.delay(prayer.email, subject, message)
 
         # 2. Mark as completed
         prayer.status = 'COMPLETED'

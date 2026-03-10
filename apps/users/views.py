@@ -31,6 +31,7 @@ from .serializers import (
     CarrierApplicationSerializer
 )
 from .permissions import IsOwnerOrAdmin
+from .tasks import send_approval_email, send_password_reset_email
 
 User = get_user_model()
 
@@ -213,27 +214,9 @@ class UserViewSet(viewsets.ModelViewSet):
             user.set_password(temp_password)
             user.save()
             
-            login_url = f"{settings.FRONTEND_URL}/login/carrier"
-            
-            subject = "Welcome to Hope Begins - Your Application is Approved!"
-            message = (
-                f"Your application as a Hope Carrier has been approved!\n\n"
-                f"You can now access your dashboard using the following credentials:\n"
-                f"Username: {user.email}\n"
-                f"Temporary Password: {temp_password}\n\n"
-                f"Login here: {login_url}\n\n"
-                "Please change your password after your first login for security purposes.\n\n"
-                "Thank you for standing in the gap with us."
-            )
-            
-            send_mail(
-                subject,
-                message,
-                settings.DEFAULT_FROM_EMAIL,
-                [user.email],
-                fail_silently=False,
-            )
-            message_response = "Carrier approved and credentials email sent."
+            # Send email asynchronously using Celery
+            send_approval_email.delay(user.id, temp_password)
+            message_response = "Carrier approved and credentials email will be sent shortly via background task."
         else:
             user.save()
             message_response = "User approved successfully."
@@ -256,13 +239,8 @@ class ForgotPasswordView(APIView):
             # Reset URL (frontend URL)
             reset_url = f"{settings.FRONTEND_URL}/reset-password?uid={uidb64}&token={token}"
             
-            send_mail(
-                "Password Reset Request",
-                f"Use this link to reset your password: {reset_url}",
-                settings.DEFAULT_FROM_EMAIL,
-                [email],
-                fail_silently=False,
-            )
+            # Send email asynchronously using Celery
+            send_password_reset_email.delay(email, reset_url)
             response = Response(None)
             response.message = "Password reset link sent to email."
             return response
