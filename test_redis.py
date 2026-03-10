@@ -5,9 +5,8 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
 env = environ.Env()
-# Try to read .env first, then .env.production if on server
-env_file = os.path.join(BASE_DIR, '.env.production') if os.path.exists(os.path.join(BASE_DIR, '.env.production')) else os.path.join(BASE_DIR, '.env')
-environ.Env.read_env(env_file)
+# Read .env file
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 redis_url = env('CELERY_BROKER_URL', default='redis://localhost:6379/0')
 
