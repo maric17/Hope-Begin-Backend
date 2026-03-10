@@ -20,9 +20,11 @@ def send_subscriber_email_logic(subscriber):
             subscriber.save()
         return False
         
+    from django.conf import settings
+    
     # Send email
     subject = f"Daily Hope Drop - Day {day}: {content['title']}"
-    from_email = 'noreply@hopebegins.org'
+    from_email = settings.DEFAULT_FROM_EMAIL
     to = subscriber.email
     
     text_content = f"Hi {subscriber.first_name},\n\nDay {day}: {content['title']}\n\n{content['description']}\n\nVerse of the Day:\n{content['verse']}"
