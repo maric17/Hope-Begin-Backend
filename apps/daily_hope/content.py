@@ -3,7 +3,7 @@
 HOPE_JOURNEY_CONTENT = {
     1: {
         "title": "The Seed of Hope",
-        "description": "Today, focus on the small seeds of hope in your life. Even the smallest spark can light up the darkness. Hope begins with a single step of faith.",
+        "description": "Today focus on the small seeds of hope in your life. Even the smallest spark can light up the darkness. Hope begins with a single step of faith.",
         "verse": "Faith is the assurance of things hoped for, the conviction of things not seen. - Hebrews 11:1",
         "image_url": "https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&q=80&w=800"
     },
