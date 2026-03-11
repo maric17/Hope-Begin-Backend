@@ -1,5 +1,5 @@
 name: Deploy Backend
-#on:
+on:
   push:
     branches:
       - main
@@ -22,4 +22,4 @@ jobs:
             echo "${{ secrets.BACKEND_ENV }}" > .env
             git reset --hard
             git pull
-            docker compose up -d --build backend celery
+            docker compose up -d --build backend

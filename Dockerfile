@@ -5,18 +5,23 @@ ENV PYTHONUNBUFFERED 1
 
 WORKDIR /app
 
-# Copy the entire requirements folder
-COPY requirements/ ./requirements/
+# NEW: Install system dependencies for SSL/TLS and Postgres
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    libssl-dev \
+    gcc \
+    python3-dev \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install prod dependencies
+COPY requirements/ ./requirements/
 RUN pip install --upgrade pip && pip install -r requirements/prod.txt
 
-# Copy project files
 COPY . .
 
-# Collect static files if using Django static
 RUN python manage.py collectstatic --noinput
 
 EXPOSE 8000
 
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "2", "--timeout", "60"]
+# Optimization: Increase timeout slightly for SMTP handshakes if not using Celery
+CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "2", "--timeout", "90"]
