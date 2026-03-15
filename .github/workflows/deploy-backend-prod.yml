@@ -44,7 +44,7 @@ jobs:
             
             # 3. Restart backend AND celery (they share the same image)
             # This ensures both pick up the new code and the new .env
-            docker compose up -d backend celery
+            docker compose up -d backend celery celery-beat
             
             # 4. Run migrations (always a good idea after a backend update)
             docker exec www-backend-1 python manage.py migrate --noinput
