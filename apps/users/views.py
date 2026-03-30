@@ -19,6 +19,7 @@ from django.db.models.functions import TruncDate
 
 from apps.prayers.models import Prayer
 from apps.hopecasts.models import Hopecast, HopecastPlayLog
+from apps.daily_hope.models import HopefulBeginningCompletion
 from apps.prayers.serializers import PrayerSerializer
 from .serializers import (
     AdminRegistrationSerializer, 
@@ -141,7 +142,10 @@ class UserViewSet(viewsets.ModelViewSet):
         # 6. Total registered users
         total_users = User.objects.count()
 
-        # 7. Weekly Trends (Last 7 days)
+        # 7. Hopeful Beginning Completions
+        journey_completions = HopefulBeginningCompletion.objects.count()
+
+        # 8. Weekly Trends (Last 7 days)
         end_date = timezone.now().date()
         start_date = end_date - timedelta(days=6)
 
@@ -181,6 +185,7 @@ class UserViewSet(viewsets.ModelViewSet):
             "total_carriers": total_carriers,
             "hopecast_plays": total_hopecast_plays,
             "total_users": total_users,
+            "journey_completions": journey_completions,
             "recent_prayers": recent_prayers_data,
             "prayer_trend": prayer_trend,
             "hopecast_trend": hopecast_trend,

@@ -27,39 +27,70 @@ def send_subscriber_email_logic(subscriber):
     from django.conf import settings
     
     # Send email
-    subject = f"Daily Hope Drop - Day {day}: {content['title']}"
+    subject = f"Daily Hope Journey - Day {day}: {content['title']}"
     from_email = settings.DEFAULT_FROM_EMAIL
     to = subscriber.email
-    
-    text_content = f"Hi {subscriber.first_name},\n\nDay {day}: {content['title']}\n\n{content['description']}\n\nVerse of the Day:\n{content['verse']}"
-    
-    # HTML content with image and verse
+
+    # Plain text version
+    text_content = f"Day {day}: {content['title']}\n\n{content['description']}\n\n{content['verse']}\n\n{content.get('outro', '')}\n\nReflect:\n{content.get('reflection', '')}\n\nPrayer:\n{content.get('prayer', '')}\n\n{content.get('sign_off', 'Hope Begins Here,')}\nHopeBegins Team\n\nSupport: hopebegins.today/give-hope\nPrayers: hopebegins.today/prayers"
+
+    # HTML content with premium styling
     html_content = f"""
     <html>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-            <div style="max-width: 600px; margin: 0 auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
-                <h2 style="color: #6b634d;">Day {day}: {content['title']}</h2>
-                <p>Hi {subscriber.first_name},</p>
-                <p>{content['description']}</p>
-                
-                <div style="background-color: #f9f8f4; padding: 15px; border-left: 4px solid #b4c392; margin: 20px 0;">
-                    <p style="font-style: italic; margin: 0;">"{content['verse']}"</p>
+        <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; color: #2d3748; background-color: #f7fafc; padding: 20px;">
+            <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
+                <!-- Header Image -->
+                <div style="width: 100%; height: 200px; overflow: hidden;">
+                    <img src="{content['image_url']}" alt="Daily Hope Day {day}" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
 
-                <div style="margin-top: 20px; text-align: center;">
-                    <img src="{content['image_url']}" alt="Daily Hope Day {day}" style="max-width: 100%; height: auto; border-radius: 8px;">
+                <div style="padding: 40px;">
+                    <div style="text-transform: uppercase; letter-spacing: 0.1em; color: #a0aec0; font-weight: 700; font-size: 12px; margin-bottom: 8px;">Day {day}</div>
+                    <h2 style="color: #2d3748; margin-top: 0; font-size: 28px; line-height: 1.2;">{content['title']}</h2>
+                    
+                    <div style="color: #4a5568; font-size: 16px; margin-bottom: 24px; white-space: pre-wrap;">{content['description']}</div>
+                    
+                    <!-- Verse Callout -->
+                    <div style="background-color: #fffaf0; padding: 24px; border-left: 4px solid #ed8936; margin: 32px 0; border-radius: 4px;">
+                        <p style="font-style: italic; margin: 0; color: #2d3748; font-size: 18px; line-height: 1.6;">{content['verse']}</p>
+                    </div>
+
+                    <div style="color: #4a5568; font-size: 16px; margin-bottom: 32px; white-space: pre-wrap;">{content.get('outro', '')}</div>
+
+                    <!-- Reflection Section -->
+                    <div style="margin-top: 40px; padding: 24px; background-color: #ebf8ff; border-radius: 12px;">
+                        <h4 style="margin-top: 0; color: #2b6cb0; text-transform: uppercase; font-size: 13px; letter-spacing: 0.05em;">Take a moment to reflect</h4>
+                        <p style="margin-bottom: 0; color: #2c5282; font-size: 16px;">{content.get('reflection', '')}</p>
+                    </div>
+
+                    <!-- Prayer Section -->
+                    <div style="margin-top: 24px; padding: 24px; background-color: #f0fff4; border-radius: 12px;">
+                        <h4 style="margin-top: 0; color: #2f855a; text-transform: uppercase; font-size: 13px; letter-spacing: 0.05em;">Simple Prayer</h4>
+                        <p style="margin-bottom: 0; color: #276749; font-size: 16px; font-style: italic;">{content.get('prayer', '')}</p>
+                    </div>
+
+                    <div style="margin-top: 48px; border-top: 1px solid #edf2f7; padding-top: 32px;">
+                        <p style="margin-bottom: 4px; color: #4a5568;">{content.get('sign_off', 'Hope Begins Here,')}</p>
+                        <p style="margin-top: 0; font-weight: 700; color: #2d3748;">HopeBegins Team</p>
+                    </div>
+
+                    <div style="margin-top: 32px; font-size: 13px; color: #a0aec0;">
+                        <p style="margin-bottom: 8px;">You’re not alone in this journey.</p>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <a href="https://hopebegins.today/give-hope" style="color: #ed8936; text-decoration: none;">• Support HopeBegins</a>
+                            <a href="https://hopebegins.today/prayers" style="color: #ed8936; text-decoration: none;">• Share your prayer requests</a>
+                        </div>
+                    </div>
                 </div>
-                
-                <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
-                
-                <p style="font-size: 0.8em; color: #888; text-align: center;">
-                    You are receiving this because you signed up for the 21-day Hope Journey at Hope Begins.
-                </p>
+
+                <div style="background-color: #edf2f7; padding: 24px; text-align: center; font-size: 12px; color: #718096;">
+                    <p style="margin: 0;">You are receiving this because you signed up for the 21-day Hope Journey.</p>
+                </div>
             </div>
         </body>
     </html>
     """
-    
+
     msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
     msg.attach_alternative(html_content, "text/html")
     
