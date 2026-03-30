@@ -20,3 +20,15 @@ class HopeJourney(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} - Day {self.current_day}"
+
+
+class HopefulBeginningCompletion(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Hopeful Beginning Completion"
+        verbose_name_plural = "Hopeful Beginning Completions"
+
+    def __str__(self):
+        return f"Completion {self.id} at {self.created_at}"
