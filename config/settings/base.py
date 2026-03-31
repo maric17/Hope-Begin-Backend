@@ -208,7 +208,7 @@ from celery.schedules import crontab
 CELERY_BEAT_SCHEDULE = {
     'send-daily-hope-emails-8am': {
         'task': 'apps.daily_hope.tasks.send_daily_hope_emails',
-        # Set to 07:50 UTC, which equals 3:50 PM local time for +08:00 timezone
-        'schedule': crontab(hour=7, minute=50),
+        # Set to 00:00 UTC, which equals 8:00 AM local time for +08:00 timezone
+        'schedule': crontab(hour=0, minute=0),
     },
 }
