@@ -28,7 +28,7 @@ def send_subscriber_email_logic(subscriber):
     
     # Send email
     subject = f"Daily Hope Journey - Day {day}: {content['title']}"
-    from_email = f"Hope Begins <{settings.DEFAULT_FROM_EMAIL}>"
+    from_email = f"HopeBegins <{settings.DEFAULT_FROM_EMAIL}>"
     to = subscriber.email
 
     # Plain text version
