@@ -98,34 +98,6 @@ class PrayerViewSet(viewsets.ModelViewSet):
                 content=note
             )
             
-        # 2. Always send notification email
-        subject = "HopeBegins - Someone prayed for you!"
-        message = (
-            f"Hello,\n\n"
-            f"A Hope Carrier has just finished praying for your request: \"{prayer.title}\".\n\n"
-            f"Your prayer request was:\n"
-            f"--------------------------------------------------\n"
-            f"\"{prayer.content}\"\n"
-            f"--------------------------------------------------\n\n"
-        )
-        
-        if note:
-            message += (
-                f"They shared a word of encouragement with you:\n"
-                f"--------------------------------------------------\n"
-                f"\"{note}\"\n"
-                f"--------------------------------------------------\n\n"
-            )
-            
-        message += (
-            "We are standing in agreement with you.\n\n"
-            "Blessings,\n"
-            "The Hope Begins Team"
-        )
-        
-        # Send email asynchronously using Celery
-        send_prayer_encouragement_email.delay(prayer.email, subject, message)
-
         # 2. Mark as completed
         prayer.status = 'COMPLETED'
         prayer.save()
