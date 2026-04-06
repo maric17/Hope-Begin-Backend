@@ -38,7 +38,7 @@ def test_config(env_file_name):
     from django.core.mail import send_mail
     
     recipient = "maricmarfil@gmail.com"
-    subject = f"Test Email ({env_file_name})"
+    subject = f"HopeBegins - Debug - {env_file_name}"
     
     try:
         print(f"Attempting to send direct email to {recipient}...")

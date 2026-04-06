@@ -40,7 +40,7 @@ def main():
     logger = logging.getLogger("test_email")
 
     recipient = "maricmarfil@gmail.com"
-    subject = "Test Email from Hope Begins Server"
+    subject = "HopeBegins - Test Email from Server"
     message = "This is a test email sent from the server terminal to verify SMTP email configuration."
 
     logger.info(f"--- Email Configuration ---")
