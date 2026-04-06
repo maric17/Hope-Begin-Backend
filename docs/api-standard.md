@@ -12,6 +12,7 @@ To ensure a consistent experience for frontend integration (especially with Next
 }
 ```
 
+
 ### Fields
 
 - **`status`** (boolean): 
