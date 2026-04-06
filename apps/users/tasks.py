@@ -78,3 +78,30 @@ def send_prayer_encouragement_email(to_email, subject, message):
     except Exception as e:
         logger.error(f"Error sending encouragement email to {to_email}: {str(e)}", exc_info=True)
         return f"Error sending encouragement email: {str(e)}"
+
+@shared_task
+def send_assignment_notification_email(carrier_email, prayer_title):
+    logger.info(f"Task send_assignment_notification_email triggered for carrier_email={carrier_email}")
+    try:
+        login_url = f"{settings.FRONTEND_URL}/login/carrier"
+        subject = "New Prayer Request Assigned to You!"
+        message = (
+            f"Hello,\n\n"
+            f"An administrator has assigned a new prayer request to you: \"{prayer_title}\".\n\n"
+            f"Please log in to your dashboard to view the details and start praying:\n"
+            f"{login_url}\n\n"
+            "Thank you for your faithful service."
+        )
+        
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [carrier_email],
+            fail_silently=False,
+        )
+        logger.info(f"Successfully sent assignment email to {carrier_email}")
+        return f"Assignment email sent to {carrier_email}"
+    except Exception as e:
+        logger.error(f"Error sending assignment email to {carrier_email}: {str(e)}", exc_info=True)
+        return f"Error sending assignment email: {str(e)}"

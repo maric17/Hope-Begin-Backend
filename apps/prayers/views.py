@@ -7,7 +7,7 @@ from django.conf import settings
 from .models import Prayer, PrayerResponse
 from .serializers import PrayerSerializer, AdminPrayerSerializer, PrayerResponseSerializer
 from apps.users.permissions import IsApproved
-from apps.users.tasks import send_prayer_encouragement_email
+from apps.users.tasks import send_prayer_encouragement_email, send_assignment_notification_email
 
 from rest_framework.pagination import PageNumberPagination
 
@@ -73,6 +73,10 @@ class PrayerViewSet(viewsets.ModelViewSet):
                 prayer.assigned_to = carrier
                 prayer.status = 'ASSIGNED'
                 prayer.save()
+                
+                # Send email notification to carrier
+                send_assignment_notification_email.delay(carrier.email, prayer.title)
+                
                 response = Response(AdminPrayerSerializer(prayer).data)
                 response.message = f"Prayer assigned to {carrier.email} successfully."
                 return response
@@ -85,7 +89,7 @@ class PrayerViewSet(viewsets.ModelViewSet):
         prayer = self.get_object()
         note = request.data.get('note')
         
-        # 1. If note is present, save it and email the requester
+        # 1. If note is present, save it to the database
         if note:
             # Save the response in the database
             PrayerResponse.objects.create(
@@ -94,29 +98,40 @@ class PrayerViewSet(viewsets.ModelViewSet):
                 content=note
             )
             
-            # Send Encouraging Email
-            subject = f"Encouragement: Someone prayed for you today!"
-            message = (
-                f"Hello,\n\n"
-                f"A Hope Carrier has just finished praying for your request: \"{prayer.title}\".\n\n"
+        # 2. Always send notification email
+        subject = "Someone prayed for you!"
+        message = (
+            f"Hello,\n\n"
+            f"A Hope Carrier has just finished praying for your request: \"{prayer.title}\".\n\n"
+            f"Your prayer request was:\n"
+            f"--------------------------------------------------\n"
+            f"\"{prayer.content}\"\n"
+            f"--------------------------------------------------\n\n"
+        )
+        
+        if note:
+            message += (
                 f"They shared a word of encouragement with you:\n"
                 f"--------------------------------------------------\n"
                 f"\"{note}\"\n"
                 f"--------------------------------------------------\n\n"
-                "We are standing in agreement with you.\n\n"
-                "Blessings,\n"
-                "The Hope Begins Team"
             )
             
-            # Send email asynchronously using Celery
-            send_prayer_encouragement_email.delay(prayer.email, subject, message)
+        message += (
+            "We are standing in agreement with you.\n\n"
+            "Blessings,\n"
+            "The Hope Begins Team"
+        )
+        
+        # Send email asynchronously using Celery
+        send_prayer_encouragement_email.delay(prayer.email, subject, message)
 
         # 2. Mark as completed
         prayer.status = 'COMPLETED'
         prayer.save()
         
         response = Response(self.get_serializer(prayer).data)
-        response.message = "Prayer marked as completed. Your encouragement has been sent." if note else "Prayer marked as completed."
+        response.message = "Prayer marked as completed. The requester has been notified."
         return response
 
     @action(detail=False, methods=['get'], url_path='carrier-dashboard/(?P<user_id>[^/.]+)', permission_classes=[permissions.IsAuthenticated, IsApproved])
