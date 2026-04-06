@@ -27,8 +27,8 @@ def send_subscriber_email_logic(subscriber):
     from django.conf import settings
     
     # Send email
-    subject = f"Daily Hope Journey - Day {day}: {content['title']}"
-    from_email = f"HopeBegins <{settings.DEFAULT_FROM_EMAIL}>"
+    subject = f"HopeBegins - Daily Hope Journey - Day {day}: {content['title']}"
+    from_email = settings.DEFAULT_FROM_EMAIL
     to = subscriber.email
 
     # Plain text version

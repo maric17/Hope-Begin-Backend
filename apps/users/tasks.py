@@ -15,7 +15,7 @@ def send_approval_email(user_id, temp_password):
         user = User.objects.get(id=user_id)
         login_url = f"{settings.FRONTEND_URL}/login/carrier"
         
-        subject = "Welcome to Hope Begins - Your Application is Approved!"
+        subject = "HopeBegins - Welcome! Your Application is Approved!"
         message = (
             f"Your application as a Hope Carrier has been approved!\n\n"
             f"You can now access your dashboard using the following credentials:\n"
@@ -49,7 +49,7 @@ def send_password_reset_email(email, reset_url):
     try:
         logger.info(f"Attempting to send password reset email to {email}")
         send_mail(
-            "Password Reset Request",
+            "HopeBegins - Password Reset Request",
             f"Use this link to reset your password: {reset_url}",
             settings.DEFAULT_FROM_EMAIL,
             [email],
@@ -84,7 +84,7 @@ def send_assignment_notification_email(carrier_email, prayer_title):
     logger.info(f"Task send_assignment_notification_email triggered for carrier_email={carrier_email}")
     try:
         login_url = f"{settings.FRONTEND_URL}/login/carrier"
-        subject = "New Prayer Request Assigned to You!"
+        subject = "HopeBegins - New Prayer Request Assigned to You!"
         message = (
             f"Hello,\n\n"
             f"An administrator has assigned a new prayer request to you: \"{prayer_title}\".\n\n"

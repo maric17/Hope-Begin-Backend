@@ -99,7 +99,7 @@ class PrayerViewSet(viewsets.ModelViewSet):
             )
             
         # 2. Always send notification email
-        subject = "Someone prayed for you!"
+        subject = "HopeBegins - Someone prayed for you!"
         message = (
             f"Hello,\n\n"
             f"A Hope Carrier has just finished praying for your request: \"{prayer.title}\".\n\n"
