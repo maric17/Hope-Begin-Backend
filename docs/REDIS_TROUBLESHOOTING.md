@@ -12,6 +12,7 @@ sudo systemctl status redis
 sudo systemctl status redis-server
 ```
 
+
 **What to look for:**
 - `Active: active (running)` means it's working.
 - `Active: inactive (dead)` or `failed` means it's stopped.
