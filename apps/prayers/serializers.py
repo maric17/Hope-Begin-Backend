@@ -20,6 +20,7 @@ class PrayerSerializer(serializers.ModelSerializer):
     isAnonymous = serializers.BooleanField(source='is_anonymous', required=False)
     shareFirstName = serializers.BooleanField(source='share_first_name', required=False)
     wantsFollowUp = serializers.BooleanField(source='wants_follow_up', required=False)
+    website = serializers.CharField(required=False, allow_blank=True, write_only=True)
 
     class Meta:
         model = Prayer
@@ -27,12 +28,18 @@ class PrayerSerializer(serializers.ModelSerializer):
             'id', 'title', 'email', 'content', 'category', 
             'isAnonymous', 'shareFirstName', 'wantsFollowUp', 
             'status', 'assigned_to', 'assigned_to_email', 
-            'user', 'created_at', 'updated_at', 'responses'
+            'user', 'created_at', 'updated_at', 'responses',
+            'website'
         )
         read_only_fields = (
             'id', 'status', 'assigned_to', 'user', 
             'created_at', 'updated_at', 'responses'
         )
+
+    def validate(self, data):
+        if data.get('website'):
+            raise serializers.ValidationError("Anti-spam: Bot detected.")
+        return data
 
 class AdminPrayerSerializer(serializers.ModelSerializer):
     responses = PrayerResponseSerializer(many=True, read_only=True)
