@@ -11,4 +11,6 @@ class DonationSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if data.get('website'):
             raise serializers.ValidationError("Anti-spam: Bot detected.")
+        # Remove website so it doesn't get passed to the model
+        data.pop('website', None)
         return data
