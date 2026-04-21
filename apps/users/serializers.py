@@ -134,13 +134,15 @@ class ResetPasswordSerializer(serializers.Serializer):
         user.set_password(self.validated_data['new_password'])
         user.save()
         return user
-
 class CarrierApplicationSerializer(serializers.ModelSerializer):
+    website = serializers.CharField(required=False, allow_blank=True, write_only=True)
+
     class Meta:
         model = User
         fields = (
             'username', 'email', 'first_name', 'last_name', 
-            'phone', 'church_community', 'carrier_reason', 'agreed_to_guidelines'
+            'phone', 'church_community', 'carrier_reason', 'agreed_to_guidelines',
+            'website'
         )
         extra_kwargs = {
             'first_name': {'required': True},
@@ -153,6 +155,11 @@ class CarrierApplicationSerializer(serializers.ModelSerializer):
         if not value:
             raise serializers.ValidationError("You must agree to the guidelines to apply.")
         return value
+
+    def validate(self, data):
+        if data.get('website'):
+            raise serializers.ValidationError("Anti-spam: Bot detected.")
+        return data
 
     def create(self, validated_data):
         # Create a user without a password (it will be set after approval)
