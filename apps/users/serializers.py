@@ -20,6 +20,12 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
     def validate(self, attrs):
         data = super().validate(attrs)
+        
+        if not self.user.is_approved and self.user.role != 'admin':
+            raise serializers.ValidationError({
+                "detail": "Your account is pending admin approval."
+            })
+
         # Add extra responses
         data['user'] = {
             'id': self.user.id,
