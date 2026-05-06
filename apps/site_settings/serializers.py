@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import PopoutSettings, PopoutItem
+from .models import PopoutSettings, PopoutItem, JourneyContent
 
 class PopoutItemSerializer(serializers.ModelSerializer):
     class Meta:
@@ -9,4 +9,9 @@ class PopoutItemSerializer(serializers.ModelSerializer):
 class PopoutSettingsSerializer(serializers.ModelSerializer):
     class Meta:
         model = PopoutSettings
-        fields = ['is_enabled', 'interval_seconds']
+        fields = ['id', 'is_enabled', 'interval_seconds']
+
+class JourneyContentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = JourneyContent
+        fields = ['id', 'title', 'description', 'video_embed_url', 'updated_at']

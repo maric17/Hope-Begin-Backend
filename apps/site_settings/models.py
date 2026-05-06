@@ -26,3 +26,22 @@ class PopoutItem(models.Model):
 
     def __str__(self):
         return self.message
+
+class JourneyContent(models.Model):
+    title = models.CharField(max_length=255, default="A Word for You")
+    description = models.TextField(default="Before anything else, we want you to hear this.")
+    video_embed_url = models.URLField(default="https://www.youtube.com/embed/zHPaFDRZMUo?rel=0")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Journey Content"
+        verbose_name_plural = "Journey Content"
+
+    def __str__(self):
+        return "Journey Content Settings"
+
+    def save(self, *args, **kwargs):
+        if not self.pk and JourneyContent.objects.exists():
+            # Ensure only one instance exists
+            return
+        return super().save(*args, **kwargs)

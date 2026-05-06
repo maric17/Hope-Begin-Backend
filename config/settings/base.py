@@ -21,6 +21,9 @@ env = environ.Env(
     CELERY_BROKER_URL=(str, 'redis://localhost:6379/0'),
     CELERY_RESULT_BACKEND=(str, 'redis://localhost:6379/0'),
     FRONTEND_URL=(str, 'http://localhost:3000'),
+    STRIPE_PUBLIC_KEY=(str, ''),
+    STRIPE_SECRET_KEY=(str, ''),
+    STRIPE_WEBHOOK_SECRET=(str, ''),
 )
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -214,6 +217,11 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
+
+# Stripe Configuration
+STRIPE_PUBLIC_KEY = env('STRIPE_PUBLIC_KEY')
+STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY')
+STRIPE_WEBHOOK_SECRET = env('STRIPE_WEBHOOK_SECRET')
 
 from celery.schedules import crontab
 
