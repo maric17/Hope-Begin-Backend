@@ -61,6 +61,9 @@ INSTALLED_APPS = [
     'apps.donations.apps.DonationsConfig',
     'apps.hope_ai.apps.HopeAiConfig',
     'apps.daily_hope.apps.DailyHopeConfig',
+    'apps.analytics.apps.AnalyticsConfig',
+    'apps.hope_stories.apps.HopeStoriesConfig',
+    'apps.site_settings.apps.SiteSettingsConfig',
 ]
 
 MIDDLEWARE = [
@@ -172,7 +175,8 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_THROTTLE_RATES': {
         'anon': '20/day',
-        'user': '1000/day'
+        'user': '1000/day',
+        'public_form': '5/hour'
     }
 }
 

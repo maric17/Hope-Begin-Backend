@@ -142,13 +142,15 @@ class ResetPasswordSerializer(serializers.Serializer):
         return user
 class CarrierApplicationSerializer(serializers.ModelSerializer):
     website = serializers.CharField(required=False, allow_blank=True, write_only=True)
+    lastNameHoney = serializers.CharField(required=False, allow_blank=True, write_only=True)
+    startTime = serializers.IntegerField(required=False, write_only=True)
 
     class Meta:
         model = User
         fields = (
             'username', 'email', 'first_name', 'last_name', 
             'phone', 'church_community', 'carrier_reason', 'agreed_to_guidelines',
-            'website'
+            'website', 'lastNameHoney', 'startTime'
         )
         extra_kwargs = {
             'first_name': {'required': True},
@@ -163,10 +165,25 @@ class CarrierApplicationSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, data):
-        if data.get('website'):
+        from common.utils import validate_form_time, check_spam_keywords
+
+        # Honeypot checks
+        if data.get('website') or data.get('lastNameHoney'):
             raise serializers.ValidationError("Anti-spam: Bot detected.")
-        # Remove website so it doesn't get passed to the model
+            
+        # Keyword filtering
+        if check_spam_keywords(data.get('carrier_reason', '')):
+            raise serializers.ValidationError({"carrier_reason": "Your application contains restricted keywords. Please revise and try again."})
+            
+        # Time-based validation
+        start_time = data.get('startTime')
+        if not validate_form_time(start_time):
+            raise serializers.ValidationError("Anti-spam: Form submitted too quickly.")
+
+        # Remove fields so they don't get passed to the model
         data.pop('website', None)
+        data.pop('lastNameHoney', None)
+        data.pop('startTime', None)
         return data
 
     def create(self, validated_data):

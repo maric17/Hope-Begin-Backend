@@ -4,8 +4,8 @@ from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
 from django.core.mail import send_mail
 from django.conf import settings
-from .models import Prayer, PrayerResponse
-from .serializers import PrayerSerializer, AdminPrayerSerializer, PrayerResponseSerializer
+from .models import Prayer, PrayerResponse, Organization
+from .serializers import PrayerSerializer, AdminPrayerSerializer, PrayerResponseSerializer, OrganizationSerializer
 from apps.users.permissions import IsApproved
 from apps.users.tasks import send_prayer_encouragement_email, send_assignment_notification_email
 
@@ -16,10 +16,17 @@ class StandardResultsSetPagination(PageNumberPagination):
     page_size_query_param = 'page_size'
     max_page_size = 100
 
+from common.throttles import StrictPublicFormThrottle
+
 class PrayerViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
+    throttle_classes = [StrictPublicFormThrottle]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['status', 'category']
+    filterset_fields = {
+        'status': ['exact'],
+        'category': ['exact'],
+        'created_at': ['gte', 'lte'],
+    }
     search_fields = ['title', 'content', 'email']
     ordering_fields = ['created_at', 'updated_at']
     ordering = ['-created_at']
@@ -164,3 +171,20 @@ class PrayerResponseViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+class OrganizationViewSet(viewsets.ModelViewSet):
+    queryset = Organization.objects.all()
+    serializer_class = OrganizationSerializer
+    
+    def get_permissions(self):
+        if self.action == 'list':
+            # Allow public to list active organizations for the dropdown
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated(), IsApproved()]
+
+    def get_queryset(self):
+        queryset = Organization.objects.all()
+        # If not admin, only show active organizations
+        if not (self.request.user.is_authenticated and self.request.user.role == 'admin'):
+            queryset = queryset.filter(is_active=True)
+        return queryset

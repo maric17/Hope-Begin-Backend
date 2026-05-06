@@ -9,4 +9,7 @@ urlpatterns = [
     path('api/donations/', include('apps.donations.urls')),
     path('api/hope-ai/', include('apps.hope_ai.urls')),
     path('api/daily-hope/', include('apps.daily_hope.urls')),
+    path('api/analytics/', include('apps.analytics.urls')),
+    path('api/hope-stories/', include('apps.hope_stories.urls')),
+    path('api/popouts/', include('apps.site_settings.urls')),
 ]
