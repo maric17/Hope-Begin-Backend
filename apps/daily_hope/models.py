@@ -32,3 +32,21 @@ class HopefulBeginningCompletion(models.Model):
 
     def __str__(self):
         return f"Completion {self.id} at {self.created_at}"
+
+
+class EmailTemplate(models.Model):
+    day_number = models.IntegerField(unique=True)
+    subject = models.CharField(max_length=255)
+    html_content = models.TextField()
+    is_active = models.BooleanField(default=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['day_number']
+        verbose_name = "Email Template"
+        verbose_name_plural = "Email Templates"
+
+    def __str__(self):
+        return f"Day {self.day_number}: {self.subject}"

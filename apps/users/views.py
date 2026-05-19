@@ -68,8 +68,11 @@ class RegistrationView(APIView):
             return response
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+from common.throttles import StrictPublicFormThrottle
+
 class CarrierApplicationView(APIView):
     permission_classes = (permissions.AllowAny,)
+    throttle_classes = [StrictPublicFormThrottle]
 
     def post(self, request):
         serializer = CarrierApplicationSerializer(data=request.data)

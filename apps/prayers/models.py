@@ -2,6 +2,20 @@ from django.db import models
 from django.conf import settings
 import uuid
 
+class Organization(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
 class Prayer(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     CATEGORY_CHOICES = [
@@ -30,6 +44,15 @@ class Prayer(models.Model):
     wants_follow_up = models.BooleanField(default=False)
     
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NEW')
+    
+    # Optional link to an organization
+    organization = models.ForeignKey(
+        Organization,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='prayers'
+    )
     
     # The carrier assigned to this prayer
     assigned_to = models.ForeignKey(

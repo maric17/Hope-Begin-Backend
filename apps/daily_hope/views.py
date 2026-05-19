@@ -1,7 +1,8 @@
 from rest_framework import viewsets, permissions, status, pagination, filters
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
-from .models import HopeJourney, HopefulBeginningCompletion
-from .serializers import HopeJourneySerializer
+from .models import HopeJourney, HopefulBeginningCompletion, EmailTemplate
+from .serializers import HopeJourneySerializer, EmailTemplateSerializer
 from rest_framework.views import APIView
 
 class HopeJourneyPagination(pagination.PageNumberPagination):
@@ -9,11 +10,18 @@ class HopeJourneyPagination(pagination.PageNumberPagination):
     page_size_query_param = 'page_size'
     max_page_size = 100
 
+from common.throttles import StrictPublicFormThrottle
+
 class HopeJourneyViewSet(viewsets.ModelViewSet):
     queryset = HopeJourney.objects.all()
     serializer_class = HopeJourneySerializer
     pagination_class = HopeJourneyPagination
-    filter_backends = [filters.SearchFilter]
+    throttle_classes = [StrictPublicFormThrottle]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = {
+        'is_active': ['exact'],
+        'created_at': ['gte', 'lte'],
+    }
     search_fields = ['first_name', 'last_name', 'email']
 
     def get_permissions(self):
@@ -44,3 +52,13 @@ class HopefulBeginningCompletionView(APIView):
     def post(self, request):
         HopefulBeginningCompletion.objects.create()
         return Response({"message": "Hopeful Beginning completion recorded."}, status=status.HTTP_201_CREATED)
+
+
+class EmailTemplateViewSet(viewsets.ModelViewSet):
+    queryset = EmailTemplate.objects.all()
+    serializer_class = EmailTemplateSerializer
+    permission_classes = [permissions.IsAdminUser]
+    pagination_class = None  # Small number of templates, no need for pagination
+    
+    def get_queryset(self):
+        return EmailTemplate.objects.all().order_by('day_number')

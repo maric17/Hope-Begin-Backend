@@ -11,7 +11,7 @@ def test_config(env_file_name):
     
     env_path = os.path.join(BASE_DIR, env_file_name)
     if not os.path.exists(env_path):
-        print(f"❌ Error: {env_file_name} not found at {env_path}")
+        print(f"Error: {env_file_name} not found at {env_path}")
         return
         
     environ.Env.read_env(env_path)
@@ -50,13 +50,20 @@ def test_config(env_file_name):
             fail_silently=False,
         )
         if res:
-            print(f"✅ SUCCESS! Email sent using {env_file_name} settings.")
+            print(f"[SUCCESS] Email sent using {env_file_name} settings.")
         else:
-            print(f"⚠️ FAILED. send_mail returned 0.")
+            print(f"[FAILED] send_mail returned 0.")
     except Exception as e:
-        print(f"❌ ERROR: {e}")
+        print(f"[ERROR] Failed to send: {e}")
 
 if __name__ == '__main__':
     # Test both to see the difference
-    test_config('.env')
-    test_config('.env.production')
+    try:
+        test_config('.env')
+    except Exception as e:
+        print(f"[ERROR] Exception running .env test: {e}")
+        
+    try:
+        test_config('.env.production')
+    except Exception as e:
+        print(f"[ERROR] Exception running .env.production test: {e}")
