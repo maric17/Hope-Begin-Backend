@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from apps.daily_hope.models import EmailTemplate
 from apps.daily_hope.content import GET_HOPE_DROPS_CONTENT
+from common.utils import visit_site_html
 
 class Command(BaseCommand):
     help = 'Seeds the EmailTemplate model with content from content.py'
@@ -59,6 +60,8 @@ class Command(BaseCommand):
                         </div>
                     </div>
                 </div>
+
+                {visit_site_html('/')}
 
                 <div style="background-color: #edf2f7; padding: 24px; text-align: center; font-size: 12px; color: #718096;">
                     <p style="margin: 0;">You are receiving this because you signed up for the 21-day Hope Journey.</p>

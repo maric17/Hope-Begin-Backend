@@ -8,8 +8,28 @@ class HopeJourneySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = HopeJourney
-        fields = ('id', 'first_name', 'last_name', 'email', 'current_day', 'created_at', 'updated_at', 'website', 'last_name_honey', 'start_time')
-        read_only_fields = ('id', 'created_at', 'updated_at')
+        fields = (
+            'id',
+            'first_name',
+            'last_name',
+            'email',
+            'current_day',
+            'is_active',
+            'finished_at',
+            'created_at',
+            'updated_at',
+            'website',
+            'last_name_honey',
+            'start_time',
+        )
+        read_only_fields = (
+            'id',
+            'current_day',
+            'is_active',
+            'finished_at',
+            'created_at',
+            'updated_at',
+        )
 
     def validate(self, data):
         from common.utils import validate_form_time

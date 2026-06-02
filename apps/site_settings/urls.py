@@ -4,7 +4,8 @@ from .views import (
     PublicPopoutView, 
     PopoutSettingsViewSet, 
     PopoutItemViewSet,
-    JourneyContentViewSet
+    JourneyContentViewSet,
+    JourneyPageContentView,
 )
 
 router = DefaultRouter()
@@ -14,5 +15,6 @@ router.register(r'journey-content', JourneyContentViewSet, basename='journey-con
 
 urlpatterns = [
     path('public/', PublicPopoutView.as_view(), name='public-popouts'),
+    path('journey-page-content/', JourneyPageContentView.as_view(), name='journey-page-content'),
     path('', include(router.urls)),
 ]
