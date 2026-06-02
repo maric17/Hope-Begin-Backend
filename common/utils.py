@@ -1,5 +1,9 @@
 import logging
 import time
+from html import escape
+
+from django.conf import settings
+from django.core.mail import EmailMultiAlternatives
 
 logger = logging.getLogger(__name__)
 
@@ -41,3 +45,65 @@ def check_spam_keywords(text):
         if keyword in text_lower:
             return True
     return False
+
+
+def get_site_url(path="/"):
+    base_url = getattr(settings, "FRONTEND_URL", "https://hopebegins.today").rstrip("/")
+    clean_path = path if path.startswith("/") else f"/{path}"
+    return f"{base_url}{clean_path}"
+
+
+def append_visit_site_text(message, path="/"):
+    site_url = get_site_url(path)
+    return (
+        f"{message.rstrip()}\n\n"
+        "Need more encouragement or want to return to HopeBegins?\n"
+        f"Visit HopeBegins: {site_url}"
+    )
+
+
+def visit_site_html(path="/", label="Visit HopeBegins"):
+    site_url = get_site_url(path)
+    return f"""
+    <div style="margin: 32px 0; text-align: center;">
+        <a href="{site_url}" style="display: inline-block; background-color: #a3b18a; color: #ffffff; padding: 14px 24px; border-radius: 999px; text-decoration: none; font-weight: 700; font-family: Arial, sans-serif;">
+            {escape(label)}
+        </a>
+        <p style="margin: 12px 0 0; color: #6b7280; font-size: 13px; font-family: Arial, sans-serif;">
+            Or open this link: <a href="{site_url}" style="color: #6b634d;">{site_url}</a>
+        </p>
+    </div>
+    """
+
+
+def append_visit_site_html(html_content, path="/"):
+    if "Visit HopeBegins" in html_content:
+        return html_content
+    return f"{html_content}{visit_site_html(path)}"
+
+
+def plain_text_to_html(message, path="/"):
+    escaped_message = escape(message).replace("\n", "<br>")
+    return f"""
+    <html>
+        <body style="font-family: Arial, sans-serif; color: #222222; line-height: 1.6; background-color: #f7f7f2; padding: 24px;">
+            <div style="max-width: 640px; margin: 0 auto; background-color: #ffffff; border-radius: 18px; padding: 32px; border: 1px solid #ece9dd;">
+                <div style="font-size: 15px;">{escaped_message}</div>
+                {visit_site_html(path)}
+            </div>
+        </body>
+    </html>
+    """
+
+
+def send_notification_email(subject, message, recipient_list, path="/"):
+    text_content = append_visit_site_text(message, path)
+    html_content = plain_text_to_html(message, path)
+    email = EmailMultiAlternatives(
+        subject,
+        text_content,
+        settings.DEFAULT_FROM_EMAIL,
+        recipient_list,
+    )
+    email.attach_alternative(html_content, "text/html")
+    return email.send(fail_silently=False)

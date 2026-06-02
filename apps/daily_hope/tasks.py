@@ -3,6 +3,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.utils import timezone
 from .models import HopeJourney, EmailTemplate
 from .content import GET_HOPE_DROPS_CONTENT
+from common.utils import append_visit_site_html, append_visit_site_text, visit_site_html
 import logging
 
 logger = logging.getLogger(__name__)
@@ -20,10 +21,12 @@ def send_subscriber_email_logic(subscriber):
     
     if template:
         subject = template.subject
-        html_content = template.html_content
+        html_content = append_visit_site_html(template.html_content)
         # We need a plain text version. Since we don't store it, we'll use a generic one or strip HTML.
         # For now, let's just use a simple message as plain text fallback.
-        text_content = f"Day {day} of your Hope Journey is here! Please view this email in an HTML-compatible client to see the full content."
+        text_content = append_visit_site_text(
+            f"Day {day} of your Hope Journey is here! Please view this email in an HTML-compatible client to see the full content."
+        )
     else:
         # Fallback to hardcoded content if no template found
         content = GET_HOPE_DROPS_CONTENT.get(day)
@@ -39,7 +42,9 @@ def send_subscriber_email_logic(subscriber):
         subject = f"HopeBegins - Daily Hope Journey - Day {day}: {content['title']}"
         
         # Plain text version
-        text_content = f"Day {day}: {content['title']}\n\n{content['description']}\n\n{content['verse']}\n\n{content.get('outro', '')}\n\nReflect:\n{content.get('reflection', '')}\n\nPrayer:\n{content.get('prayer', '')}\n\n{content.get('sign_off', 'Hope Begins Here,')}\nHopeBegins Team\n\nSupport: hopebegins.today/give-hope\nPrayers: hopebegins.today/prayers"
+        text_content = append_visit_site_text(
+            f"Day {day}: {content['title']}\n\n{content['description']}\n\n{content['verse']}\n\n{content.get('outro', '')}\n\nReflect:\n{content.get('reflection', '')}\n\nPrayer:\n{content.get('prayer', '')}\n\n{content.get('sign_off', 'Hope Begins Here,')}\nHopeBegins Team\n\nSupport: hopebegins.today/give-hope\nPrayers: hopebegins.today/prayers"
+        )
 
         # HTML content with premium styling
         html_content = f"""
@@ -89,6 +94,8 @@ def send_subscriber_email_logic(subscriber):
                             </div>
                         </div>
                     </div>
+
+                    {visit_site_html('/')}
 
                     <div style="background-color: #edf2f7; padding: 24px; text-align: center; font-size: 12px; color: #718096;">
                         <p style="margin: 0;">You are receiving this because you signed up for the 21-day Hope Journey.</p>

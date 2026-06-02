@@ -142,8 +142,8 @@ class UserViewSet(viewsets.ModelViewSet):
         recent_prayers = Prayer.objects.all().order_by('-created_at')[:5]
         recent_prayers_data = PrayerSerializer(recent_prayers, many=True).data
 
-        # 6. Total registered users
-        total_users = User.objects.count()
+        # 6. Total Hope Carrier accounts, excluding admins and regular users
+        total_users = User.objects.filter(role='carrier').count()
 
         # 7. Hopeful Beginning Completions
         journey_completions = HopefulBeginningCompletion.objects.count()

@@ -1,7 +1,7 @@
 from celery import shared_task
-from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from common.utils import send_notification_email
 import logging
 
 logger = logging.getLogger(__name__)
@@ -27,12 +27,11 @@ def send_approval_email(user_id, temp_password):
         )
         
         logger.info(f"Attempting to send approval email to {user.email}")
-        send_mail(
+        send_notification_email(
             subject,
             message,
-            settings.DEFAULT_FROM_EMAIL,
             [user.email],
-            fail_silently=False,
+            path="/login/carrier",
         )
         logger.info(f"Successfully sent approval email to {user.email}")
         return f"Approval email sent to {user.email}"
@@ -48,12 +47,11 @@ def send_password_reset_email(email, reset_url):
     logger.info(f"Task send_password_reset_email triggered for email={email}")
     try:
         logger.info(f"Attempting to send password reset email to {email}")
-        send_mail(
+        send_notification_email(
             "HopeBegins - Password Reset Request",
             f"Use this link to reset your password: {reset_url}",
-            settings.DEFAULT_FROM_EMAIL,
             [email],
-            fail_silently=False,
+            path="/",
         )
         logger.info(f"Successfully sent password reset email to {email}")
         return f"Password reset email sent to {email}"
@@ -66,12 +64,11 @@ def send_prayer_encouragement_email(to_email, subject, message):
     logger.info(f"Task send_prayer_encouragement_email triggered for to_email={to_email}")
     try:
         logger.info(f"Attempting to send encouragement email to {to_email}")
-        send_mail(
+        send_notification_email(
             subject,
             message,
-            settings.DEFAULT_FROM_EMAIL,
             [to_email],
-            fail_silently=False,
+            path="/",
         )
         logger.info(f"Successfully sent encouragement email to {to_email}")
         return f"Encouragement email sent to {to_email}"
@@ -93,12 +90,11 @@ def send_assignment_notification_email(carrier_email, prayer_title):
             "Thank you for your faithful service."
         )
         
-        send_mail(
+        send_notification_email(
             subject,
             message,
-            settings.DEFAULT_FROM_EMAIL,
             [carrier_email],
-            fail_silently=False,
+            path="/login/carrier",
         )
         logger.info(f"Successfully sent assignment email to {carrier_email}")
         return f"Assignment email sent to {carrier_email}"

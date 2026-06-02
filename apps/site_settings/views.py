@@ -1,7 +1,12 @@
 from rest_framework import viewsets, permissions, views
 from rest_framework.response import Response
 from .models import PopoutSettings, PopoutItem, JourneyContent
-from .serializers import PopoutSettingsSerializer, PopoutItemSerializer, JourneyContentSerializer
+from .serializers import (
+    PopoutSettingsSerializer,
+    PopoutItemSerializer,
+    JourneyContentSerializer,
+    JourneyPageContentSerializer,
+)
 
 class PublicPopoutView(views.APIView):
     permission_classes = [permissions.AllowAny]
@@ -43,4 +48,31 @@ class JourneyContentViewSet(viewsets.ModelViewSet):
         if not instance:
             instance = JourneyContent.objects.create()
         serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+
+class JourneyPageContentView(views.APIView):
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [permissions.AllowAny()]
+        return [permissions.IsAdminUser()]
+
+    def get_instance(self):
+        instance = JourneyContent.objects.first()
+        if not instance:
+            instance = JourneyContent.objects.create()
+        return instance
+
+    def get(self, request):
+        serializer = JourneyPageContentSerializer(self.get_instance())
+        return Response(serializer.data)
+
+    def patch(self, request):
+        serializer = JourneyPageContentSerializer(
+            self.get_instance(),
+            data=request.data,
+            partial=True,
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(serializer.data)
